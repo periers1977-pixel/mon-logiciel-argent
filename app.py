@@ -11,7 +11,7 @@ if st.button("Obtenir mon plan"):
         try:
             # Connexion à l'IA avec ta clé secrète
             API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
-            headers = {"Authorization": f"Bearer {st.secrets['hf_votre_cle_gratuite']}"}
+            headers = {"Authorization": f"Bearer {st.secrets['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']}"}
             
             # Question personnalisée pour l'IA
             prompt = f"Donne 3 étapes différentes et précises pour ce projet : {idee}"
@@ -31,3 +31,4 @@ if st.button("Obtenir mon plan"):
 st.markdown("---")
 st.write("💰 Pour le plan complet à 9€ :")
 st.markdown("[CLIQUEZ ICI POUR PAYER](https://buy.stripe.com/test_evq3cp2GmgDg6Ho6axfUQ00)")
+
