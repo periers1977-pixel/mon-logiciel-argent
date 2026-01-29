@@ -2,107 +2,62 @@ import streamlit as st
 import time
 import random
 
-# 1. Configuration Haute Performance
-st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="wide")
+st.set_page_config(page_title="Architect Solution Pro", page_icon="💎")
 
-# 2. Base de Données d'Expertise Massive (pour l'unicité)
-MARKETING_DATABASE = [
-    "Analyse des flux de trafic via des algorithmes prédictifs sur les réseaux sociaux.",
-    "Déploiement d'une stratégie d'acquisition 'Blue Ocean' pour éviter la concurrence directe.",
-    "Optimisation du tunnel de vente par l'intelligence artificielle comportementale.",
-    "Mise en place d'un écosystème de fidélisation basé sur la gamification client.",
-    "Segmentation dynamique de l'audience pour un ciblage publicitaire à haute conversion."
-]
-
-FINANCE_DATABASE = [
-    "Modélisation de la trésorerie avec une marge de sécurité de 25% sur les coûts fixes.",
-    "Optimisation de la structure de capital pour maximiser le retour sur investissement (ROI).",
-    "Analyse du seuil de rentabilité ajustée selon les cycles saisonniers du marché.",
-    "Mise en place d'un tableau de bord de pilotage basé sur les KPI financiers en temps réel.",
-    "Stratégie de réinvestissement des bénéfices pour une scalabilité accélérée dès l'An 1."
-]
-
-# 3. Fonction de Génération du Dossier de 25 Pages
-def generer_dossier_25_pages(idee):
-    # Sélection aléatoire pour garantir que chaque dossier est différent
-    mkt_expertise = random.sample(MARKETING_DATABASE, 3)
-    fin_expertise = random.sample(FINANCE_DATABASE, 3)
-    session_id = random.randint(100000, 999999)
-    
-    dossier = f"""
-    ============================================================
-    ARCHITECT SOLUTION PRO - RAPPORT STRATÉGIQUE RÉSERVÉ
-    RÉFÉRENCE DOSSIER : #BP-{session_id} | DATE : 2026
-    PROJET : {idee.upper()}
-    ============================================================
-    
-    CHAPITRE 1 : RÉSUMÉ EXÉCUTIF (PAGES 1-4)
-    L'analyse algorithmique de votre projet '{idee}' révèle un potentiel 
-    de pénétration de marché de {random.randint(65, 94)}%. 
-    Ce chapitre détaille la vision globale et les objectifs à court terme.
-    
-    CHAPITRE 2 : STRATÉGIE MARKETING ET ACQUISITION (PAGES 5-12)
-    Expertise appliquée :
-    - {mkt_expertise[0]}
-    - {mkt_expertise[1]}
-    - {mkt_expertise[2]}
-    [... Suite de l'analyse détaillée sur 8 pages marketing ...]
-    
-    CHAPITRE 3 : MODÈLE FINANCIER ET SCALABILITÉ (PAGES 13-20)
-    Analyses chiffrées :
-    - {fin_expertise[0]}
-    - {fin_expertise[1]}
-    - {fin_expertise[2]}
-    [... Détails des tableaux Excel et flux de trésorerie sur 8 pages ...]
-    
-    CHAPITRE 4 : CADRE JURIDIQUE ET ANALYSE DES RISQUES (PAGES 21-25)
-    Protection de la marque et sécurisation des actifs numériques pour {idee}.
-    Mise en conformité RGPD 2026 et stratégie de protection juridique.
-    
-    ============================================================
-    PROPRIÉTÉ EXCLUSIVE - REPRODUCTION INTERDITE
-    ============================================================
-    """
-    return dossier
-
-# 4. Interface Utilisateur
-st.title("💎 Architect Solution Pro")
-idee = st.text_input("Saisissez votre concept business :", placeholder="Ex: Boutique de sneakers écologiques...")
-
-# BARRE LATÉRALE - ACCÈS DÉVELOPPEUR SÉCURISÉ
+# Mot de passe sécurisé
 st.sidebar.subheader("🔒 Zone Propriétaire")
-code_secret = st.sidebar.text_input("Mot de passe développeur :", type="password")
+code_secret = st.sidebar.text_input("Mot de passe :", type="password")
 
-if st.button("🚀 GÉNÉRER L'EXPERTISE"):
+st.title("💎 Architect Solution Pro")
+idee = st.text_input("Saisissez votre concept :")
+lancer = st.button("🚀 GÉNÉRER LE DOSSIER COMPLET")
+
+if lancer:
     if idee:
         barre = st.progress(0, text="Compilation des 25 pages d'expertise...")
         for p in range(100):
             time.sleep(0.01)
             barre.progress(p + 1)
         
-        st.success("✅ Analyse stratégique terminée.")
-        
-        # Vérification du code secret
         if code_secret == "23111977":
-            st.sidebar.success("Accès Autorisé")
-            contenu_final = generer_dossier_25_pages(idee)
+            st.success("✅ ACCÈS DÉVELOPPEUR DÉBLOQUÉ")
             
-            st.markdown("### 📄 DOSSIER COMPLET (Vue Exclusive)")
-            st.text_area("Contenu du document de 25 pages :", contenu_final, height=450)
+            # CONSTRUCTION DU DOSSIER GÉANT
+            # Chaque section est répétée 15 fois avec des détails pour créer le volume
+            entete = f"============================================================\n"
+            entete += f"DOSSIER STRATÉGIQUE COMPLET - PROJET : {idee.upper()}\n"
+            entete += f"ID DOSSIER : #ARCH-{random.randint(1000, 9999)} | ÉDITION 2026\n"
+            entete += f"============================================================\n\n"
+            
+            section_mkt = ("STRATÉGIE MARKETING (PAGES 1-8)\n" + "-"*30 + "\n" + 
+                          f"L'analyse pour {idee} montre que l'acquisition doit se faire par paliers. "
+                          "Nous recommandons un ciblage précis par intérêts comportementaux. "
+                          "Le tunnel de conversion doit inclure une page de capture haute performance, "
+                          "un système de relance automatique et une offre irrésistible... \n" * 150)
+            
+            section_fin = ("\n\nPRÉVISIONS FINANCIÈRES (PAGES 9-18)\n" + "-"*30 + "\n" + 
+                          "Les tableaux de flux de trésorerie indiquent une rentabilité croissante. "
+                          "Le seuil de rentabilité est estimé avec une précision algorithmique. "
+                          "Les investissements initiaux seront amortis sur une période de 12 à 18 mois. "
+                          "Chaque euro investi doit générer au moins 3 euros de chiffre d'affaires... \n" * 150)
+            
+            section_jur = ("\n\nCADRE JURIDIQUE ET RISQUES (PAGES 19-25)\n" + "-"*30 + "\n" + 
+                          f"Pour sécuriser le projet {idee}, la protection de la marque est la priorité. "
+                          "Le contrat de vente doit être blindé juridiquement. "
+                          "Les risques de marché ont été identifiés et des mesures d'atténuation "
+                          "sont incluses dans ce rapport final certifié 2026... \n" * 150)
+            
+            dossier_final = entete + section_mkt + section_fin + section_jur
+            
+            st.info("Le dossier massif est prêt. Cliquez ci-dessous pour le télécharger.")
             
             st.download_button(
-                label="📥 TÉLÉCHARGER MON DOSSIER DE 25 PAGES",
-                data=contenu_final,
-                file_name=f"Business_Plan_{idee}.txt",
+                label="📥 TÉLÉCHARGER LE DOSSIER DE 25 PAGES",
+                data=dossier_final,
+                file_name=f"Dossier_Premium_{idee}.txt",
                 mime="text/plain"
             )
         else:
-            st.info("💡 L'analyse est prête. Pour débloquer le dossier complet de 25 pages, veuillez procéder au paiement ci-dessous.")
+            st.warning("L'analyse est terminée. Pour accéder au téléchargement, payez 9€.")
     else:
-        st.warning("Veuillez entrer une description de projet.")
-
-st.markdown("---")
-# TUNNEL DE VENTE POUR LES CLIENTS
-st.subheader("💳 Accès Client Premium")
-st.write("Recevez votre dossier complet de 25 pages incluant tous les tableaux financiers et marketing.")
-st.link_button("🔥 ACHETER MON DOSSIER (9€)", "https://buy.stripe.com/test_evq3cp2GmgDg6Ho6axfUQ00")
+        st.error("Veuillez entrer une idée.")
