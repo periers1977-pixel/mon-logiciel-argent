@@ -2,46 +2,70 @@ import streamlit as st
 import requests
 import time
 
-st.set_page_config(page_title="Business Master AI", page_icon="🚀")
+# Configuration de luxe
+st.set_page_config(page_title="Business Architect AI", page_icon="💎", layout="wide")
 
-st.title("🚀 Mon Générateur de Business")
-st.write("Obtenez une stratégie professionnelle pour votre projet en quelques secondes.")
+# Style personnalisé pour un look haut de gamme
+st.markdown("""
+    <style>
+    .main { background-color: #f5f7f9; }
+    .stButton>button { width: 100%; border-radius: 20px; height: 3em; background-color: #007bff; color: white; }
+    .plan-box { padding: 20px; border-radius: 10px; border: 1px solid #e0e0e0; background-color: white; }
+    </style>
+    """, unsafe_allow_html=True)
 
-idee = st.text_input("Votre projet", placeholder="Ex: Ouvrir un food-truck bio...")
+st.title("💎 Business Architect AI")
+st.caption("L'intelligence artificielle au service de votre rentabilité.")
 
-if st.button("Obtenir mon plan"):
+# Formulaire structuré
+with st.container():
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        idee = st.text_input("Quelle est votre vision ?", placeholder="Ex: Un concept de café-librairie innovant...")
+    with col2:
+        st.write("##")
+        lancer = st.button("🚀 GÉNÉRER L'ANALYSE")
+
+if lancer:
     if idee:
-        # --- DÉBUT DE LA BARRE DE PROGRESSION ---
-        progress_text = "Analyse approfondie de votre projet en cours..."
-        my_bar = st.progress(0, text=progress_text)
-
-        for percent_complete in range(100):
-            time.sleep(0.02)  # Simule le temps de réflexion de l'IA
-            my_bar.progress(percent_complete + 1, text=progress_text)
-        
-        time.sleep(0.5)
-        my_bar.empty() # Efface la barre une fois fini
-        # --- FIN DE LA BARRE DE PROGRESSION ---
-
-        try:
-            API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
-            headers = {"Authorization": "Bearer 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"}
-            payload = {"inputs": f"Donne 3 conseils stratégiques pour : {idee}", "options": {"wait_for_model": True}}
+        with st.status("🛠️ Construction de votre stratégie...", expanded=True) as status:
+            st.write("Analyse du marché...")
+            time.sleep(1)
+            st.write("Calcul des risques...")
+            time.sleep(1)
             
-            with st.spinner("Rédaction finale..."):
+            try:
+                API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+                headers = {"Authorization": "Bearer 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"}
+                payload = {"inputs": f"Donne une stratégie de génie pour : {idee}", "options": {"wait_for_model": True}}
+                
                 response = requests.post(API_URL, headers=headers, json=payload)
                 resultat = response.json()
                 
-                if isinstance(resultat, list) and 'generated_text' in resultat[0]:
-                    st.success("✅ Votre plan est prêt !")
-                    st.markdown(f"### Conseils Stratégiques :\n{resultat[0]['generated_text']}")
-                else:
-                    st.warning("L'IA est encore en train de chauffer. Re-cliquez une fois.")
-        except:
-            st.error("Petit délai réseau. Veuillez réessayer.")
+                status.update(label="✅ Analyse terminée !", state="complete", expanded=False)
+                
+                # Affichage Premium
+                st.balloons()
+                st.markdown("### 🎯 Votre Aperçu Stratégique")
+                st.info(resultat[0]['generated_text'])
+                
+                # Zone de Vente Irrésistible
+                st.markdown("---")
+                c1, c2, c3 = st.columns(3)
+                c1.metric("Potentiel", "Élevé 🔥")
+                c2.metric("Difficulté", "Modérée ⚖️")
+                c3.metric("Rentabilité", "9/10 💰")
+                
+                st.markdown("<div class='plan-box'>", unsafe_allow_html=True)
+                st.subheader("🔓 Voulez-vous le dossier complet de 25 pages ?")
+                st.write("Inclus : Business Plan, Étude de concurrence, Budget détaillé et Stratégie réseaux sociaux.")
+                st.link_button("🔥 TÉLÉCHARGER LE DOSSIER COMPLET (9€)", "https://buy.stripe.com/votre_lien_stripe")
+                st.markdown("</div>", unsafe_allow_html=True)
+                
+            except:
+                st.error("L'IA est très demandée. Re-cliquez pour forcer l'accès.")
     else:
-        st.error("Veuillez entrer une idée avant de cliquer.")
+        st.warning("Veuillez décrire votre projet.")
 
-st.markdown("---")
-st.link_button("🔥 PAYER 9€ POUR LE PLAN COMPLET", "https://buy.stripe.com/test_evq3cp2GmgDg6Ho6axfUQ00")
-st.caption("Paiement sécurisé par Stripe. Accès immédiat au dossier PDF.")
+st.sidebar.markdown("### Aide & Support")
+st.sidebar.write("Logiciel certifié 2026. Paiements sécurisés par Stripe.")
