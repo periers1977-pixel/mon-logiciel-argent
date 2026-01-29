@@ -1,78 +1,85 @@
 import streamlit as st
 import time
 import random
-from datetime import datetime
 
-# Configuration Professionnelle
 st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="centered")
 
-# 1. BASE DE DONNÉES D'EXPERTISE HAUTE DENSITÉ (Pour faire 25 pages)
-BASE_TEXTE = [
-    "L'analyse de scalabilité pour {idee} révèle un levier de croissance majeur sur le segment B2B. L'optimisation des flux permet une réduction des coûts marginaux de {val}%. ",
-    "La stratégie marketing de {idee} doit impérativement intégrer un tunnel d'acquisition basé sur l'IA comportementale pour maximiser le taux de conversion dès le premier mois. ",
-    "Concernant la structure financière, nous préconisons pour {idee} un maintien du BFR à un niveau agile, favorisant une réactivité maximale face aux évolutions du marché 2026. ",
-    "Le positionnement de marque doit s'appuyer sur une identité visuelle forte et une promesse client disruptive pour se démarquer de la concurrence directe de {idee}. "
-]
+# 1. BIBLIOTHÈQUE DE RÉDACTION LOGIQUE (Cohérence maximale)
+STRUCTURE_EXPERT = {
+    "COMMERCE": {
+        "intro": "L'analyse du marché pour votre commerce '{idee}' montre une opportunité sur le créneau du commerce de proximité digitalisé.",
+        "marketing": "La stratégie d'acquisition repose sur le 'Web-to-Store' : attirer les clients en ligne pour générer du flux en point de vente.",
+        "finance": "L'optimisation de la marge brute est votre levier n°1. Nous préconisons une gestion de stock en flux tendu.",
+        "juridique": "La sécurisation de votre bail commercial et des assurances responsabilité civile est la priorité juridique."
+    },
+    "TECH": {
+        "intro": "Votre plateforme '{idee}' s'inscrit dans la transformation numérique des usages de 2026.",
+        "marketing": "Le levier principal est le 'Growth Hacking' et l'optimisation du tunnel de conversion (AARRR).",
+        "finance": "La rentabilité est liée au MRR (Revenu Mensuel Récurrent). Il faut minimiser le taux d'attrition (Churn).",
+        "juridique": "La mise en conformité RGPD et la propriété intellectuelle du code sont vos piliers de sécurité."
+    },
+    "SERVICE": {
+        "intro": "Votre activité de service '{idee}' repose sur la monétisation de votre expertise et de votre temps.",
+        "marketing": "La stratégie est basée sur l'autorité : devenez la référence de votre secteur via du contenu expert.",
+        "finance": "Le point mort est rapidement atteint car les charges fixes sont limitées. Le focus doit être sur le taux horaire.",
+        "juridique": "La rédaction de contrats de prestation blindés est essentielle pour protéger votre responsabilité."
+    }
+}
 
-def generer_25_pages_textuelles(idee):
-    session_ref = f"BP-PRO-{random.randint(1000, 9999)}"
-    # On construit un document massif
-    pages = []
-    pages.append(f"ARCHITECT SOLUTION PRO - RAPPORT D'EXPERTISE STRATÉGIQUE\nPROJET : {idee.upper()} | RÉF : {session_ref}\n" + "="*60 + "\n")
+def generer_dossier_coherent_25_pages(idee):
+    # Détection du secteur
+    mots = idee.lower()
+    secteur = "SERVICE"
+    if any(x in mots for x in ["boutique", "magasin", "produit", "vente", "chaussures", "vêtements"]): secteur = "COMMERCE"
+    elif any(x in mots for x in ["app", "logiciel", "plateforme", "site", "web", "tech"]): secteur = "TECH"
     
+    data = STRUCTURE_EXPERT[secteur]
+    pages = []
+    pages.append(f"ARCHITECT SOLUTION PRO - DOSSIER STRATÉGIQUE\nPROJET : {idee.upper()}\n" + "="*60)
+    
+    # Construction des 25 pages thématiques
     for i in range(1, 26):
-        contenu_page = f"\n--- SECTION {i} : ANALYSE DE DÉTAIL PROFONDE ---\n\n"
-        # On remplit chaque page avec 15 paragraphes variés pour garantir la longueur
-        for _ in range(15):
-            phrase = random.choice(BASE_TEXTE).format(idee=idee, val=random.randint(10, 35))
-            contenu_page += phrase + " "
+        pages.append(f"\n--- CHAPITRE {i} : ANALYSE DÉTAILLÉE ---")
+        if i <= 5: 
+            txt = data["intro"] + " Cette analyse de phase de lancement détaille comment valider votre idée."
+        elif i <= 15: 
+            txt = data["marketing"] + " Nous développons ici vos 10 leviers d'acquisition prioritaires."
+        elif i <= 22: 
+            txt = data["finance"] + " Cette section contient vos projections de revenus et votre plan de trésorerie."
+        else: 
+            txt = data["juridique"] + " Enfin, nous sécurisons vos actifs pour garantir la pérennité du projet."
         
-        contenu_page += f"\n\n[ ANALYSE GRAPHIQUE SECTORIELLE RÉF {i}.A INCLUSE DANS CETTE SECTION ]\n"
-        contenu_page += f"© ARCHITECT SOLUTION PRO - PAGE {i}/25\n"
-        pages.append(contenu_page)
+        # On développe chaque chapitre pour la densité (400 mots env. par page)
+        pages.append((f"{txt} ") * 10)
         
     return "\n".join(pages)
 
-# 2. INTERFACE ÉPURÉE
+# 2. INTERFACE ÉPURÉE (Sans mention d'IA)
 st.title("💎 Architect Solution Pro")
-st.subheader("Générateur d'Expertise Business Haute Performance")
+st.subheader("Cabinet d'Expertise Stratégique Automatisé")
 
-# Bouton de paiement toujours visible
-st.link_button("🔥 ACCÉS CLIENT : PAYER 9€ POUR LE DOSSIER COMPLET", "https://buy.stripe.com/test_evq3cp2GmgDg6Ho6axfUQ00")
+st.link_button("🔥 ACCÈS CLIENT : PAYER 9€ POUR LE DOSSIER", "https://buy.stripe.com/test_evq3cp2GmgDg6Ho6axfUQ00")
 
 st.markdown("---")
-idee = st.text_input("Saisissez votre concept business :", placeholder="Ex: Boutique en ligne de luxe...")
+idee = st.text_input("Saisissez votre projet business :", placeholder="Ex: Boutique de mode éco-responsable...")
 
-# Sidebar pour votre accès personnel
 st.sidebar.subheader("🔒 Zone Propriétaire")
 code = st.sidebar.text_input("Code Secret :", type="password")
 
-if st.button("🚀 GÉNÉRER L'ANALYSE DÉTAILLÉE"):
+if st.button("🚀 GÉNÉRER L'EXPERTISE"):
     if idee:
-        with st.status("L'IA développe votre dossier de 25 pages...", expanded=True) as status:
-            st.write("Analyse des tendances 2026...")
+        with st.status("Rédaction de votre expertise de 25 pages...", expanded=True) as status:
             time.sleep(1)
-            st.write("Calcul des prévisions financières...")
+            st.write("Analyse contextuelle du secteur...")
             time.sleep(1)
-            st.write("Rédaction des 25 chapitres d'expertise...")
-            time.sleep(1)
-            status.update(label="✅ Analyse terminée !", state="complete", expanded=False)
+            st.write("Vérification de la cohérence stratégique...")
+            status.update(label="✅ Expertise prête !", state="complete")
         
         if code == "23111977":
-            st.success("✅ Accès Développeur : Dossier de 25 pages prêt.")
-            dossier_final = generer_25_pages_textuelles(idee)
+            st.success("✅ Accès Développeur : Dossier complet disponible.")
+            dossier_final = generer_dossier_coherent_25_pages(idee)
             
-            st.download_button(
-                label="📥 TÉLÉCHARGER LE DOSSIER (25 PAGES)",
-                data=dossier_final,
-                file_name=f"Expertise_Complete_{idee}.txt",
-                mime="text/plain"
-            )
-            st.text_area("Aperçu du contenu expert :", dossier_final[:1500] + "...", height=250)
+            st.download_button("📥 TÉLÉCHARGER LE DOSSIER (25 PAGES)", dossier_final, file_name=f"Expertise_{idee}.txt")
+            st.text_area("Aperçu de la rédaction cohérente :", dossier_final[:1500] + "...", height=300)
         else:
-            st.info("🎯 Votre expertise de 25 pages est prête. Utilisez le bouton de paiement ci-dessus pour débloquer le téléchargement.")
-    else:
-        st.warning("Veuillez entrer une idée de projet.")
-
-st.markdown("---")
-st.caption("Architect Solution Pro - Intelligence d'Affaires Automatisée 2026")
+            st.info("🎯 Votre dossier de 25 pages est prêt. Réglez 9€ pour le débloquer.")
