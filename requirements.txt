@@ -1,2 +1,2 @@
-smatplotlib
+matplotlib
 numpytreamlit
