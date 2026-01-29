@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import time
 
-# Configuration Développeur
+# Configuration Architect Pro
 st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="wide")
 
 st.markdown("""
@@ -23,34 +23,35 @@ lancer = st.button("🚀 LANCER L'EXPERTISE")
 
 if lancer:
     if idee:
-        barre = st.progress(0, text="Connexion au nouveau routeur...")
+        barre = st.progress(0, text="Synchronisation avec le flux de données...")
         for p in range(100):
             time.sleep(0.01)
             barre.progress(p + 1)
         
         try:
-            # NOUVELLE URL DU ROUTEUR (Correction de l'erreur)
-            API_URL = "https://router.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+            # URL UNIVERSELLE 2026 (Plus stable)
+            API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3"
             headers = {"Authorization": "Bearer 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"}
             payload = {
-                "inputs": f"Agis en consultant senior. Donne 3 conseils stratégiques pour : {idee}",
-                "parameters": {"max_new_tokens": 150},
+                "inputs": f"<s>[INST] Agis en expert. Donne 3 conseils business pour : {idee} [/INST]",
+                "parameters": {"max_new_tokens": 200},
                 "options": {"wait_for_model": True}
             }
             
-            with st.spinner("Analyse en cours via le routeur sécurisé..."):
+            with st.spinner("Extraction de l'expertise..."):
+                # Utilisation de la méthode POST classique avec vérification du statut
                 response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
-                resultat = response.json()
-            
-            if isinstance(resultat, list) and 'generated_text' in resultat[0]:
-                st.success("✅ Expertise générée avec succès")
-                st.markdown("#### 🎯 Rapport Stratégique")
-                st.write(resultat[0]['generated_text'])
-            else:
-                st.error(f"Détail technique : {resultat}")
+                
+                if response.status_code == 200:
+                    resultat = response.json()
+                    st.success("✅ Expertise générée avec succès")
+                    st.markdown("#### 🎯 Rapport Stratégique")
+                    st.write(resultat[0]['generated_text'].split('[/INST]')[-1])
+                else:
+                    st.error(f"Le serveur est en préchauffage (Code {response.status_code}). Veuillez recliquer sur le bouton.")
                 
         except Exception as e:
-            st.error(f"Erreur de connexion : {e}")
+            st.error(f"Erreur de flux : {e}")
     else:
         st.warning("Veuillez entrer une description.")
 
