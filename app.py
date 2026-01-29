@@ -4,33 +4,30 @@ import requests
 st.set_page_config(page_title="Business Master AI", page_icon="🚀")
 st.title("🚀 Mon Générateur de Business")
 
-idee = st.text_input("Votre projet", placeholder="Entrez votre idée...")
+# Champ de saisie
+idee = st.text_input("Votre projet", placeholder="Ex: Vendre des cookies")
 
-if st.button("Obtenir mon plan"):
+# Bouton d'action
+if st.button("OBTENIR MON PLAN MAINTENANT"):
     if idee:
+        st.info("L'IA prépare votre réponse... veuillez patienter 10 secondes.")
         try:
-            # Utilisation du modèle 'Mistral-7B-v0.3' qui est ultra-réactif
-            API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3"
+            API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
             headers = {"Authorization": "Bearer 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"}
+            payload = {"inputs": f"Donne 3 conseils pour : {idee}", "options": {"wait_for_model": True}}
             
-            # Paramètres optimisés pour la vitesse (max_new_tokens réduit)
-            payload = {
-                "inputs": f"Donne 3 conseils éclairs pour : {idee}",
-                "parameters": {"max_new_tokens": 80, "temperature": 0.7},
-                "options": {"wait_for_model": True}
-            }
+            response = requests.post(API_URL, headers=headers, json=payload)
+            resultat = response.json()
             
-            with st.spinner("Analyse ultra-rapide..."):
-                response = requests.post(API_URL, headers=headers, json=payload)
-                resultat = response.json()
-                
-                if isinstance(resultat, list) and 'generated_text' in resultat[0]:
-                    st.success("Plan prêt !")
-                    st.write(resultat[0]['generated_text'])
+            if isinstance(resultat, list) and 'generated_text' in resultat[0]:
+                st.success("Voici votre plan :")
+                st.write(resultat[0]['generated_text'])
+            else:
+                st.warning("L'IA chauffe... Re-cliquez une fois sur le bouton.")
         except:
-            st.error("Petit bug de vitesse, recliquez une fois !")
+            st.error("Erreur de connexion. Vérifiez votre internet.")
     else:
-        st.warning("Veuillez entrer une idée.")
+        st.error("Veuillez d'abord taper votre idée !")
 
 st.markdown("---")
 st.link_button("🔥 PAYER 9€ POUR LE PLAN COMPLET", "https://buy.stripe.com/test_evq3cp2GmgDg6Ho6axfUQ00")
