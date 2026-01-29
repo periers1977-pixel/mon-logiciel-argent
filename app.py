@@ -1,41 +1,38 @@
 import streamlit as st
 import requests
 
-# Configuration
 st.set_page_config(page_title="Business Master AI", page_icon="🚀")
-
 st.title("🚀 Mon Générateur de Business")
-st.markdown("Tapez votre idée, je vous donne la stratégie pour réussir.")
 
-# Saisie utilisateur
-idee = st.text_input("Votre projet (ex: Vendre des cookies)", placeholder="Entrez votre idée ici...")
+idee = st.text_input("Votre projet", placeholder="Entrez votre idée...")
 
 if st.button("Obtenir mon plan"):
     if idee:
         try:
-            API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
+            # Passage sur un modèle 10x plus rapide
+            API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
             headers = {"Authorization": "Bearer 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"}
             
+            # Prompt ultra-court pour une réponse instantanée
             payload = {
-                "inputs": f"Donne 3 étapes pour lancer : {idee}",
-                "parameters": {"max_new_tokens": 500},
+                "inputs": f"Donne 3 conseils rapides pour : {idee}",
+                "parameters": {"max_new_tokens": 100},
                 "options": {"wait_for_model": True}
             }
             
-            with st.spinner("L'IA réfléchit..."):
+            with st.spinner("Réponse immédiate en cours..."):
                 response = requests.post(API_URL, headers=headers, json=payload)
                 resultat = response.json()
-            
-            if isinstance(resultat, list) and 'generated_text' in resultat[0]:
-                st.success("Voici votre plan :")
-                st.write(resultat[0]['generated_text'])
-            else:
-                st.error("L'IA est occupée, réessayez dans quelques secondes.")
-        except Exception as e:
-            st.error("Erreur de connexion.")
+                
+                if isinstance(resultat, list) and 'generated_text' in resultat[0]:
+                    st.success("Succès !")
+                    st.write(resultat[0]['generated_text'])
+                else:
+                    st.info("Serveur en cours d'accélération... Re-cliquez une fois.")
+        except:
+            st.error("Erreur. Réessayez.")
     else:
-        st.warning("Veuillez entrer une idée.")
+        st.warning("Entrez une idée.")
 
 st.markdown("---")
-st.write("💰 **Pour le plan complet à 9€ :**")
-st.link_button("CLIQUEZ ICI POUR PAYER", "https://buy.stripe.com/test_evq3cp2GmgDg6Ho6axfUQ00")
+st.link_button("🔥 PAYER 9€ POUR LE PLAN COMPLET", "https://buy.stripe.com/test_evq3cp2GmgDg6Ho6axfUQ00")
