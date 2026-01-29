@@ -23,32 +23,35 @@ lancer = st.button("🚀 LANCER L'EXPERTISE")
 
 if lancer:
     if idee:
-        barre = st.progress(0, text="Synchronisation avec le flux de données...")
+        barre = st.progress(0, text="Connexion au flux de données...")
         for p in range(100):
             time.sleep(0.01)
             barre.progress(p + 1)
         
         try:
-            # URL UNIVERSELLE 2026 (Plus stable)
-            API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3"
+            # URL MISE À JOUR (Évite l'erreur 410)
+            API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
             headers = {"Authorization": "Bearer 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"}
             payload = {
-                "inputs": f"<s>[INST] Agis en expert. Donne 3 conseils business pour : {idee} [/INST]",
-                "parameters": {"max_new_tokens": 200},
+                "inputs": f"<s>[INST] Donne 3 conseils business pour : {idee} [/INST]",
+                "parameters": {"max_new_tokens": 150},
                 "options": {"wait_for_model": True}
             }
             
-            with st.spinner("Extraction de l'expertise..."):
-                # Utilisation de la méthode POST classique avec vérification du statut
+            with st.spinner("Analyse en cours..."):
                 response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
                 
+                # Gestion des codes de réponse
                 if response.status_code == 200:
                     resultat = response.json()
-                    st.success("✅ Expertise générée avec succès")
-                    st.markdown("#### 🎯 Rapport Stratégique")
-                    st.write(resultat[0]['generated_text'].split('[/INST]')[-1])
+                    st.success("✅ Expertise générée !")
+                    # Nettoyage de la réponse pour n'afficher que le conseil
+                    texte = resultat[0]['generated_text'].split('[/INST]')[-1]
+                    st.markdown(f"#### 🎯 Rapport Stratégique\n{texte}")
+                elif response.status_code == 503:
+                    st.info("⌛ Le serveur se réveille (503). Patientez 10 secondes et recliquez.")
                 else:
-                    st.error(f"Le serveur est en préchauffage (Code {response.status_code}). Veuillez recliquer sur le bouton.")
+                    st.error(f"Erreur serveur ({response.status_code}). Essayez de rafraîchir la page.")
                 
         except Exception as e:
             st.error(f"Erreur de flux : {e}")
