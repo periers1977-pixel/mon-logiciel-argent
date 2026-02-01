@@ -13,36 +13,34 @@ from reportlab.lib.enums import TA_JUSTIFY
 # --- CONFIGURATION DE LA PAGE ---
 st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="centered", initial_sidebar_state="collapsed")
 
-# --- DESIGN IMMERSIF ET MASQUAGE SÉLECTIF (CSS) ---
+# --- DESIGN IMMERSIF (CSS) ---
 st.markdown("""
     <style>
-    /* Masque les menus de développement mais laisse la flèche de la sidebar accessible */
+    /* Masquage total des menus natifs Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    .main {
-        background-color: #0e1117;
-    }
+    .main { background-color: #0e1117; }
+    
     .payment-card {
         background: linear-gradient(135deg, #1c1f26 0%, #0e1117 100%);
-        padding: 30px;
-        border-radius: 20px;
-        border: 1px solid #333;
-        text-align: center;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        padding: 30px; border-radius: 20px; border: 1px solid #333; text-align: center; margin-bottom: 30px;
     }
-    .stTextInput > div > div > input {
-        background-color: #1c1f26;
-        color: white;
-        border: 1px solid #007bff;
-        border-radius: 10px;
+    
+    /* Style du bouton d'accès admin discret */
+    .admin-access {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        opacity: 0.3;
+        transition: 0.5s;
     }
+    .admin-access:hover { opacity: 1.0; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- MOTEUR DE RECHERCHE ---
+# --- MOTEUR DE GÉNÉRATION ---
 API_KEY = "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"
 
 def purger_donnees(texte):
@@ -85,11 +83,11 @@ def fabriquer_pdf(pages, idee, sig):
 # --- INTERFACE ---
 st.markdown("<h1 style='text-align: center; color: white;'>💎 Architect Solution Pro</h1>", unsafe_allow_html=True)
 
-# Bloc de Paiement Public
+# Bloc Paiement
 st.markdown(f"""
     <div class="payment-card">
         <h2 style="color: #007bff !important;">DOSSIER D'EXPERTISE INTÉGRAL</h2>
-        <p style="color: #ccc;">Analyse multisectorielle basée sur 24 sources mondiales.</p>
+        <p style="color: #ccc;">Analyse multisectorielle basée sur 24 sources web mondiales.</p>
         <p style="font-size: 24px; font-weight: bold; color: white;">9.00 €</p>
         <a href="https://buy.stripe.com/votre_lien" target="_blank" style="text-decoration: none;">
             <div style="background: #007bff; color: white; padding: 15px; border-radius: 10px; font-weight: bold;">
@@ -99,16 +97,20 @@ st.markdown(f"""
     </div>
     """, unsafe_allow_html=True)
 
-idee = st.text_input("Saisissez votre ambition pour 2026 :", placeholder="ex: Agence immobilière de luxe...")
+idee = st.text_input("Saisissez votre ambition pour 2026 :", placeholder="ex: Lancer un restaurant gastronomique...")
 
-# --- BARRE LATÉRALE CONCEPTEUR ---
-st.sidebar.markdown("### 🔐 ACCÈS CONCEPTEUR")
-code_saisi = st.sidebar.text_input("Code Secret :", type="password")
+# --- LE BOUTON D'ACCÈS CONCEPTEUR ---
+# Ce bouton permet d'ouvrir la barre latérale même si Streamlit la cache
+if st.sidebar.button("✖️ Fermer l'accès"):
+    st.sidebar.write("Accès réduit.")
+else:
+    st.sidebar.markdown("### 🔐 CONFIGURATION")
+    code_saisi = st.sidebar.text_input("Code Secret :", type="password")
 
+# Logique Concepteur
 if code_saisi == "23111977":
     st.sidebar.success("Mode Concepteur Activé")
-    # Le bouton de génération n'apparaît QUE pour vous
-    if st.button("🚀 GÉNÉRER L'EXPERTISE (ACCÈS RÉSERVÉ)"):
+    if st.button("🚀 GÉNÉRER L'EXPERTISE (ACCÈS PRIVÉ)"):
         if idee:
             pool, titres = moteur_furtif(idee)
             pages = []
@@ -122,6 +124,7 @@ if code_saisi == "23111977":
             st.download_button("📥 TÉLÉCHARGER LE PDF", pdf, f"Expertise_{idee}.pdf")
 else:
     if idee:
-        st.info("🎯 L'intelligence prépare votre projet. Le téléchargement s'activera après validation de votre règlement.")
+        st.info("🎯 L'intelligence prépare votre projet. Le téléchargement s'activera après votre règlement.")
 
-st.markdown("<div style='text-align:center; color:#444; font-size:0.8em; margin-top:50px;'>Architect Solution Pro © 2026</div>", unsafe_allow_html=True)
+# Footer discret
+st.markdown("<div style='text-align:center; color:#333; font-size:0.7em; margin-top:100px;'>Architect Solution Pro © 2026</div>", unsafe_allow_html=True)
