@@ -4,151 +4,150 @@ import hashlib
 import io
 import re
 import random
-from datetime import datetime
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.lib.enums import TA_JUSTIFY
 
-# --- CONFIGURATION PAGE ---
+# --- 1. CONFIGURATION & SÉCURITÉ MÉMOIRE ---
 st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="centered")
 
-# --- 🌍 SYSTÈME MULTI-LANGUES (Point 1) ---
-# On définit un sélecteur simple qui pourrait être automatisé par la suite
-lang = st.selectbox("🌐 Language / Langue", ["Français", "English"], index=0)
+# Utilisation des secrets Streamlit pour l'API KEY (Recommandé) ou fallback
+API_KEY = st.secrets.get("TAVILY_API_KEY", "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")
 
-T = {
-    "Français": {
-        "title": "Architect Solution Pro",
-        "subtitle": "Expertise Systémique & Algorithmes de Précision",
-        "placeholder": "ex: Boutique de luxe, Application innovante...",
-        "btn_std": "🚀 GÉNÉRER L'ANALYSE (9€)",
-        "btn_pre": "👑 EXPERTISE BANCAIRE (29€)",
-        "status_gen": "DOSSIER GÉNÉRÉ",
-        "ready": "Votre expertise de haute densité est prête.",
-        "unlock": "DÉBLOQUER ET TÉLÉCHARGER",
-        "liaison": "Concernant votre ambition pour '{idee}', les données révèlent :",
-        "table": ["INDICATEUR CLÉ", "PRÉVISION 2026", "IMPACT"]
-    },
-    "English": {
-        "title": "Architect Solution Pro",
-        "subtitle": "Systemic Expertise & Precision Algorithms",
-        "placeholder": "e.g.: Luxury boutique, Innovative App...",
-        "btn_std": "🚀 GENERATE ANALYSIS (9€)",
-        "btn_pre": "👑 BANK-LEVEL EXPERTISE (29€)",
-        "status_gen": "REPORT GENERATED",
-        "ready": "Your high-density expertise is ready.",
-        "unlock": "UNLOCK AND DOWNLOAD",
-        "liaison": "Regarding your ambition for '{idee}', systemic data reveals:",
-        "table": ["KEY INDICATOR", "2026 FORECAST", "IMPACT"]
-    }
-}[lang]
+if 'pdf_binaire' not in st.session_state:
+    st.session_state['pdf_binaire'] = None
+if 'nom_projet' not in st.session_state:
+    st.session_state['nom_projet'] = ""
 
-# --- DESIGN IMMERSIF (CSS) ---
-st.markdown(f"""
+# --- 2. DESIGN PROFESSIONNEL ---
+st.markdown("""
     <style>
-    #MainMenu, footer, header {{visibility: hidden;}}
-    [data-testid="stSidebar"] {{display: none;}}
-    .main {{ background: radial-gradient(circle, #1a1c23 0%, #0e1117 100%); color: white; }}
-    .premium-card {{
-        background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(20px);
-        padding: 40px; border-radius: 35px; border: 1px solid rgba(0, 123, 255, 0.4);
-        text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.8); margin: 20px 0;
-    }}
-    .price-tag {{ font-size: 48px; font-weight: 900; color: #00c6ff; margin: 10px 0; }}
-    .admin-footer {{ position: fixed; bottom: 5px; left: 5px; width: 100px; opacity: 0.03; transition: 0.3s; }}
-    .admin-footer:hover {{ opacity: 1; }}
+    #MainMenu, footer, header {visibility: hidden;} [data-testid="stSidebar"] {display: none;}
+    .stApp { background-color: #f8f9fa; color: #1e1e1e; }
+    .admin-bar {
+        background-color: #1e1e1e; color: #00ff00; padding: 15px;
+        border-radius: 10px; border: 2px solid #00ff00; margin-bottom: 20px;
+        text-align: center; font-weight: bold;
+    }
+    .card-paiement {
+        background: white; padding: 35px; border-radius: 15px;
+        border: 2px solid #dee2e6; text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-top: 20px;
+    }
+    .prix-tag { font-size: 50px; font-weight: 900; color: #007bff; margin: 10px 0; }
+    .stTextInput input { border: 2px solid #000 !important; color: black !important; }
+    .stButton button { background: #007bff; color: white; font-weight: bold; height: 50px; border-radius: 8px; width: 100%; }
+    .secret-trigger { position: fixed; bottom: 10px; left: 10px; width: 60px; opacity: 0.1; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- MOTEUR DE FILTRAGE "ZÉRO RÉSIDU" ---
-API_KEY = "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"
+# --- 3. LOGIQUE MÉTIER & OPTIMISATION ---
 
-def filtrage_strict(texte):
-    blacklist = r'(?i)(Dhruv|Bhatia|analyst|Research Nester|Research Dive|Pune|India|consultant|biography|about us|contact us|Research LLC|Insight Partners|ReportsInsights)'
-    residus_web = r'(?i)(Getty Images|AFP|PHOTO|Twitter|Instagram|Facebook|LinkedIn|reCAPTCHA|Turnstile|ebook|register|click here|reading time)'
-    texte = re.sub(r'(?i)(cookie|consent|policy|analytics|http|www|subscribe|transcript|login|footer|menu)', '', texte)
-    texte = re.sub(residus_web, '', texte)
-    segments = re.findall(r'[^.!?]*[.!?]', texte)
-    return [s.strip() for s in segments if len(s.split()) > 15 and not re.search(blacklist, s)]
-
-# --- MOTEUR DE GÉNÉRATION (Point 2: Option Premium) ---
-def moteur_expertise_progression(idee, mode_premium=False):
-    # On passe de 10 à 25 axes pour le mode Premium (50 sources totales)
-    axes = ["Marché", "Innovation", "Légal", "Finance", "Acquisition", "Risques", "Vision", "Digital", "RH", "Logistique"]
-    if mode_premium:
-        axes += ["Scalabilité", "Psychologie", "Concurrents", "Supply Chain", "Export", "Fiscale", "Géo-politique", "IA/Automatisation", "Branding", "Vente Directe"]
+@st.cache_data(show_spinner=False)
+def moteur_expertise(idee, premium=False):
+    """Moteur avec gestion d'erreurs et mise en cache des résultats."""
+    # Sanitisation basique
+    idee_clean = re.sub(r'[^\w\s-]', '', idee)
+    axes = ["Marché", "Innovation", "Légal", "Finance", "Risques"]
+    if premium: 
+        axes += ["Scalabilité", "Concurrents", "Logistique", "Digital", "Vente"]
     
-    pool, titres = [], []
-    progress_bar = st.progress(0)
-    status_text = st.empty()
-    
+    resultats = []
+    barre = st.progress(0)
     for i, axe in enumerate(axes):
-        status_text.markdown(f"**💎 Analysis: {axe}...**")
-        progress_bar.progress((i + 1) / len(axes))
         try:
-            url = "https://api.tavily.com/search"
-            # On augmente la profondeur de recherche pour le Premium
-            payload = {"api_key": API_KEY, "query": f"strategic expertise {axe} {idee} 2026", "search_depth": "advanced" if mode_premium else "basic"}
-            r = requests.post(url, json=payload, timeout=15).json()
-            data = filtrage_strict(" ".join([res['content'] for res in r.get('results', [])]))
-            if data: pool.append(data); titres.append(axe.upper())
-        except: continue
-    status_text.empty(); progress_bar.empty()
-    return pool, titres
+            query = f"expertise stratégique {axe} {idee_clean} 2026 en français"
+            response = requests.post(
+                "https://api.tavily.com/search", 
+                json={"api_key": API_KEY, "query": query, "search_depth": "advanced" if premium else "basic"},
+                timeout=15
+            )
+            response.raise_for_status()
+            r = response.json()
+            textes = [res['content'] for res in r.get('results', []) if len(res['content']) > 120]
+            if textes:
+                resultats.append((axe.upper(), textes))
+        except requests.exceptions.RequestException as e:
+            st.error(f"Erreur technique (axe {axe}). Veuillez réessayer.")
+            continue
+        barre.progress((i + 1) / len(axes))
+    barre.empty()
+    return resultats
 
-def fabriquer_pdf(pages, idee, sig):
+def generer_pdf(data, projet):
+    """Génération PDF modulaire et robuste."""
     buf = io.BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=A4, rightMargin=1.2*cm, leftMargin=1.2*cm, topMargin=1.2*cm, bottomMargin=1.2*cm)
+    doc = SimpleDocTemplate(buf, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
     styles = getSampleStyleSheet()
-    style_p = ParagraphStyle('Custom', parent=styles['Normal'], fontSize=9.5, leading=13, alignment=TA_JUSTIFY)
-    style_liaison = ParagraphStyle('Liaison', parent=style_p, textColor=colors.HexColor("#007bff"), fontName="Helvetica-BoldOblique")
-    story = [Paragraph(f"<b>{T['title']} : {idee.upper()}</b>", styles["Title"]), Paragraph(f"Signature : {sig}", styles["Normal"]), Spacer(1, 0.5*cm)]
-    for page in pages:
-        story.append(Paragraph(f"<b>{page[0]}</b>", styles["Heading2"]))
-        story.append(Paragraph(T['liaison'].format(idee=idee), style_liaison))
-        for ligne in page[1:]:
-            story.append(Paragraph(ligne, style_p)); story.append(Spacer(1, 6))
-        data_tab = [[T['table'][0], T['table'][1], T['table'][2]], ["Growth", f"{random.randint(5,25)}%", "HIGH"], ["Risk", f"{random.randint(1,3)}/10", "LOW"]]
-        t = Table(data_tab, colWidths=[6*cm, 6*cm, 5*cm])
-        t.setStyle(TableStyle([('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1c1f26")), ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke), ('GRID', (0,0), (-1,-1), 0.5, colors.grey)]))
-        story.append(Spacer(1, 0.4*cm)); story.append(t); story.append(Spacer(1, 0.8*cm))
-    doc.build(story); buf.seek(0)
+    style_p = ParagraphStyle('Corps', fontName='Helvetica', fontSize=10, leading=14, alignment=TA_JUSTIFY)
+    
+    story = [Paragraph(f"<b>Architect Solution Pro : {projet.upper()}</b>", styles["Title"]), Spacer(1, 1*cm)]
+    
+    for titre, paragraphes in data:
+        story.append(Paragraph(f"<b>{titre}</b>", styles["Heading2"]))
+        for p in paragraphes:
+            p_clean = re.sub('<[^<]+?>', '', p)  # Sanitisation HTML
+            story.append(Paragraph(p_clean, style_p))
+            story.append(Spacer(1, 6))
+        story.append(Spacer(1, 0.5*cm))
+        
+    doc.build(story)
+    buf.seek(0)
     return buf
 
-# --- INTERFACE ---
-st.markdown(f"<h1 style='text-align: center; color: white;'>💎 {T['title']}</h1>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align: center; color: #555;'>{T['subtitle']}</p>", unsafe_allow_html=True)
-
-idee = st.text_input(T['placeholder'], placeholder=T['placeholder'])
-
-col_std, col_pre = st.columns(2)
-
-# Gestion du mode Standard (9€)
-with col_std:
-    if st.button(T['btn_std']):
-        if idee:
-            pool, titres = moteur_expertise_progression(idee, mode_premium=False)
-            pages_data = [[f"SECTION {i+1} : {titres[i]}"] + pool[i][:12] for i in range(len(pool))]
-            sig = hashlib.sha256(str(pages_data).encode()).hexdigest()[:12].upper()
-            st.markdown(f'<div class="premium-card"><div class="price-tag">9€</div><p>{T["ready"]}</p><a href="https://buy.stripe.com/9euro" style="text-decoration:none;"><div style="background:#007bff;color:white;padding:15px;border-radius:10px;">{T["unlock"]}</div></a></div>', unsafe_allow_html=True)
-            st.session_state['pdf'] = fabriquer_pdf(pages_data, idee, sig)
-
-# Gestion du mode Premium (29€)
-with col_pre:
-    if st.button(T['btn_pre']):
-        if idee:
-            pool, titres = moteur_expertise_progression(idee, mode_premium=True)
-            pages_data = [[f"SECTION {i+1} : {titres[i]}"] + pool[i][:15] for i in range(len(pool))]
-            sig = "PREM-" + hashlib.sha256(str(pages_data).encode()).hexdigest()[:8].upper()
-            st.markdown(f'<div class="premium-card" style="border-color:#ffd700;"><div class="price-tag" style="color:#ffd700;">29€</div><p><b>EXPERTISE BANCAIRE</b><br>{T["ready"]}</p><a href="https://buy.stripe.com/29euro" style="text-decoration:none;"><div style="background:#ffd700;color:black;padding:15px;border-radius:10px;font-weight:bold;">{T["unlock"]}</div></a></div>', unsafe_allow_html=True)
-            st.session_state['pdf'] = fabriquer_pdf(pages_data, idee, sig)
-
-# Zone Admin
-st.markdown("<div class='admin-footer'>", unsafe_allow_html=True)
+# --- 4. ACCÈS CONCEPTEUR (SÉCURISÉ) ---
+st.markdown("<div class='secret-trigger'>", unsafe_allow_html=True)
 code = st.text_input("A", type="password", label_visibility="collapsed")
 st.markdown("</div>", unsafe_allow_html=True)
-if code == "23111977" and 'pdf' in st.session_state:
-    st.download_button("📥 DOWNLOAD", st.session_state['pdf'], "Expertise_Final.pdf")
+
+if code == "23111977":
+    st.markdown("<div class='admin-bar'>🔓 ACCÈS CONCEPTEUR ACTIVÉ</div>", unsafe_allow_html=True)
+    if st.session_state['pdf_binaire']:
+        st.download_button("📥 TÉLÉCHARGER LE DOSSIER", st.session_state['pdf_binaire'], "Expertise_Solution_Pro.pdf")
+    else:
+        st.info("Lancez une analyse pour générer le document.")
+
+# --- 5. INTERFACE UTILISATEUR ---
+st.markdown("<h1 style='text-align: center;'>💎 Architect Solution Pro</h1>", unsafe_allow_html=True)
+input_idee = st.text_input("Saisissez votre idée de projet :", placeholder="ex: Boutique de luxe, Agence immobilière...")
+
+c1, c2 = st.columns(2)
+with c1:
+    if st.button("🚀 ANALYSE STANDARD (9€)"):
+        if input_idee.strip():
+            res = moteur_expertise(input_idee, False)
+            if res:
+                st.session_state['pdf_binaire'] = generer_pdf(res, input_idee)
+                st.session_state['nom_projet'] = input_idee
+                st.rerun()
+        else:
+            st.warning("Veuillez saisir une idée de projet.")
+
+with c2:
+    if st.button("👑 EXPERTISE BANCAIRE (29€)"):
+        if input_idee.strip():
+            res = moteur_expertise(input_idee, True)
+            if res:
+                st.session_state['pdf_binaire'] = generer_pdf(res, input_idee)
+                st.session_state['nom_projet'] = input_idee
+                st.rerun()
+        else:
+            st.warning("Veuillez saisir une idée de projet.")
+
+# --- 6. AFFICHAGE RÉSULTAT ---
+if st.session_state['pdf_binaire']:
+    st.success("✅ ANALYSE TERMINÉE : VOTRE DOSSIER EST PRÊT")
+    st.markdown(f"""
+        <div class="card-paiement">
+            <h3>PROJET : {st.session_state['nom_projet'].upper()}</h3>
+            <p>Notre moteur a compilé les données stratégiques. Le rapport est prêt pour téléchargement.</p>
+            <div class="prix-tag">9.00 €</div>
+            <a href="https://buy.stripe.com/votre_lien" style="text-decoration:none;">
+                <div style="background:#007bff; color:white; padding:18px; border-radius:10px; font-weight:bold;">
+                    ACCÉDER AU DOSSIER COMPLET
+                </div>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
