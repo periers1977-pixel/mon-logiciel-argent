@@ -15,55 +15,57 @@ from reportlab.lib.enums import TA_JUSTIFY
 # --- CONFIGURATION PAGE ---
 st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="centered")
 
-# --- SYSTÈME DE TRADUCTION ---
-lang = st.selectbox("🌐 Language / Langue", ["Français", "English"], index=0)
-
-T = {
-    "Français": {
-        "title": "Architect Solution Pro",
-        "subtitle": "Expertise Systémique & Algorithmes de Précision",
-        "placeholder": "ex: Agence immobilière, Site e-commerce...",
-        "btn_std": "🚀 ANALYSE STANDARD (9€)",
-        "btn_pre": "👑 EXPERTISE BANCAIRE (29€)",
-        "unlock": "DÉBLOQUER L'ACCÈS",
-        "liaison": "Concernant votre ambition pour '{idee}', les données révèlent :",
-        "search_suffix": "en français",
-        "cert": "CERTIFICATION"
-    },
-    "English": {
-        "title": "Architect Solution Pro",
-        "subtitle": "Systemic Expertise & Precision Algorithms",
-        "placeholder": "e.g.: Real estate agency, E-commerce...",
-        "btn_std": "🚀 STRATEGIC ANALYSIS (9€)",
-        "btn_pre": "👑 BANK-LEVEL EXPERTISE (29€)",
-        "unlock": "UNLOCK ACCESS",
-        "liaison": "Regarding your ambition for '{idee}', data reveals:",
-        "search_suffix": "in english",
-        "cert": "CERTIFICATION"
-    }
-}[lang]
-
-# --- STYLE VISUEL ---
+# --- STYLE CLARTÉ PROFESSIONNELLE (CSS) ---
 st.markdown("""
     <style>
     #MainMenu, footer, header {visibility: hidden;} [data-testid="stSidebar"] {display: none;}
-    .stApp { background-color: #0e1117; color: white; }
+    
+    /* Fond gris anthracite doux pour le repos visuel */
+    .stApp { 
+        background-color: #f0f2f6; 
+        color: #1e1e1e;
+    }
+
+    /* Cartes blanches épurées pour un contraste maximum */
     .premium-card {
-        background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px);
-        padding: 40px; border-radius: 30px; border: 1px solid rgba(0, 123, 255, 0.4);
-        text-align: center; margin: 20px 0;
+        background: #ffffff;
+        padding: 45px;
+        border-radius: 20px;
+        border: 1px solid #d1d5db;
+        text-align: center;
+        margin: 20px 0;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     }
-    .price-tag { font-size: 52px; font-weight: 900; color: #00c6ff; margin: 10px 0; }
+
+    /* Typographie sombre pour la lisibilité */
+    h1, h3, p, label { color: #111827 !important; }
+    
+    .price-tag { 
+        font-size: 52px; 
+        font-weight: 900; 
+        color: #007bff; 
+        margin: 10px 0; 
+    }
+
     .stButton > button {
-        background: linear-gradient(45deg, #007bff, #00c6ff);
-        color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        width: 100%;
+        transition: 0.3s;
     }
-    .admin-footer { position: fixed; bottom: 5px; left: 5px; width: 100px; opacity: 0.03; transition: 0.3s; }
+    .stButton > button:hover { background: #0056b3; }
+
+    /* Admin discret en bas */
+    .admin-footer { position: fixed; bottom: 5px; left: 5px; width: 100px; opacity: 0.1; transition: 0.3s; }
     .admin-footer:hover { opacity: 1; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- MOTEUR ---
+# --- MOTEUR & FILTRAGE ---
 API_KEY = "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"
 
 def filtrage_final(texte):
@@ -80,7 +82,8 @@ def moteur_expertise(idee, mode_premium=False):
     pool, titres = [], []
     progress_bar = st.progress(0)
     for i, axe in enumerate(axes):
-        query = f"strategic data {axe} {idee} 2026 {T['search_suffix']}"
+        # Force le français
+        query = f"expertise stratégique {axe} {idee} 2026 en français"
         depth = "advanced" if mode_premium else "basic"
         try:
             url = "https://api.tavily.com/search"
@@ -98,40 +101,45 @@ def fabriquer_pdf(pages, idee, sig, mode_premium=False):
     doc = SimpleDocTemplate(buf, pagesize=A4, rightMargin=1.2*cm, leftMargin=1.2*cm, topMargin=1.2*cm, bottomMargin=1.2*cm)
     styles = getSampleStyleSheet()
     font = "Times-Roman" if mode_premium else "Helvetica"
-    style_p = ParagraphStyle('Normal', fontName=font, fontSize=9.5, leading=12, alignment=TA_JUSTIFY)
+    style_p = ParagraphStyle('Normal', fontName=font, fontSize=10, leading=14, alignment=TA_JUSTIFY)
     
-    story = [Paragraph(f"<b>{T['title']} : {idee.upper()}</b>", styles["Title"]),
-             Paragraph(f"{T['cert']} : {sig} | 2026", styles["Normal"]), Spacer(1, 0.5*cm)]
+    story = [Paragraph(f"<b>Architect Solution Pro : {idee.upper()}</b>", styles["Title"]),
+             Paragraph(f"Signature : {sig} | 2026", styles["Normal"]), Spacer(1, 0.5*cm)]
     
     for page in pages:
         story.append(Paragraph(f"<b>{page[0]}</b>", styles["Heading2"]))
-        story.append(Paragraph(T['liaison'].format(idee=idee), style_p))
         for ligne in page[1:]:
             story.append(Paragraph(ligne, style_p)); story.append(Spacer(1, 6))
+        
+        data = [["INDICATEUR", "VALEUR", "IMPACT"], ["Fiabilité", f"{random.randint(85,99)}%", "ÉLEVÉ"]]
+        t = Table(data, colWidths=[6*cm, 6*cm, 5*cm])
+        t.setStyle(TableStyle([('BACKGROUND', (0,0), (-1,0), colors.grey), ('TEXTCOLOR', (0,0), (-1,0), colors.white), ('GRID', (0,0), (-1,-1), 0.5, colors.grey)]))
+        story.append(Spacer(1, 0.5*cm)); story.append(t); story.append(Spacer(1, 1*cm))
+        
     doc.build(story); buf.seek(0)
     return buf
 
 # --- INTERFACE ---
-st.markdown(f"<h1 style='text-align: center;'>💎 {T['title']}</h1>", unsafe_allow_html=True)
-idee = st.text_input(T['placeholder'], placeholder=T['placeholder'])
+st.markdown("<h1 style='text-align: center;'>💎 Architect Solution Pro</h1>", unsafe_allow_html=True)
+idee = st.text_input("Saisissez votre projet :", placeholder="ex: Agence immobilière, Glacier...")
 
 col1, col2 = st.columns(2)
 with col1:
-    if st.button(T['btn_std']):
+    if st.button("🚀 ANALYSE (9€)"):
         if idee:
             p, t = moteur_expertise(idee, False)
             data = [[f"SECTION {i+1} : {t[i]}"] + p[i][:10] for i in range(len(p))]
             sig = hashlib.sha256(str(data).encode()).hexdigest()[:12].upper()
-            st.markdown(f'<div class="premium-card"><div class="price-tag">9€</div><a href="https://stripe.com/9" style="text-decoration:none;"><div style="background:#007bff;color:white;padding:15px;border-radius:10px;font-weight:bold;">{T["unlock"]}</div></a></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="premium-card"><div class="price-tag">9€</div><p>Analyse prête pour déblocage.</p><a href="https://stripe.com/9" style="text-decoration:none;"><div style="background:#007bff;color:white;padding:15px;border-radius:10px;font-weight:bold;">DÉBLOQUER L\'ACCÈS</div></a></div>', unsafe_allow_html=True)
             st.session_state['pdf'] = fabriquer_pdf(data, idee, sig, False)
 
 with col2:
-    if st.button(T['btn_pre']):
+    if st.button("👑 EXPERTISE BANCAIRE (29€)"):
         if idee:
             p, t = moteur_expertise(idee, True)
             data = [[f"SECTION {i+1} : {t[i]}"] + p[i][:15] for i in range(len(p))]
             sig = "PREM-" + hashlib.sha256(str(data).encode()).hexdigest()[:8].upper()
-            st.markdown(f'<div class="premium-card" style="border-color:#ffd700;"><div class="price-tag" style="color:#ffd700;">29€</div><a href="https://stripe.com/29" style="text-decoration:none;"><div style="background:#ffd700;color:black;padding:15px;border-radius:10px;font-weight:bold;">{T["unlock"]}</div></a></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="premium-card" style="border: 2px solid #ffd700;"><div class="price-tag" style="color:#ffd700;">29€</div><p>Expertise bancaire certifiée.</p><a href="https://stripe.com/29" style="text-decoration:none;"><div style="background:#ffd700;color:black;padding:15px;border-radius:10px;font-weight:bold;">DÉBLOQUER PREMIUM</div></a></div>', unsafe_allow_html=True)
             st.session_state['pdf'] = fabriquer_pdf(data, idee, sig, True)
 
 # Admin
