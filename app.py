@@ -87,7 +87,9 @@ def moteur_expertise(idee, mode_premium=False):
         except: continue
         progress_bar.progress((i + 1) / len(axes))
     progress_bar.empty()
-    return pool, titresdef fabriquer_pdf(pages, idee, sig, mode_premium=False):
+    return pool, titres
+
+def fabriquer_pdf(pages, idee, sig, mode_premium=False):
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=A4, rightMargin=1.2*cm, leftMargin=1.2*cm, topMargin=1.2*cm, bottomMargin=1.2*cm)
     styles = getSampleStyleSheet()
