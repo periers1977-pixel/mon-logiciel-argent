@@ -10,68 +10,89 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.lib.enums import TA_JUSTIFY
 
-st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="wide")
+# --- CONFIGURATION DE LA PAGE ---
+st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="centered")
 
-# --- CONFIGURATION DU MOTEUR ---
-API_KEY = "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" 
+# --- DESIGN IMMERSIF (CSS) ---
+st.markdown("""
+    <style>
+    .main {
+        background-color: #0e1117;
+    }
+    .stTextInput > div > div > input {
+        background-color: #1c1f26;
+        color: white;
+        border: 1px solid #007bff;
+        border-radius: 10px;
+    }
+    .stButton > button {
+        width: 100%;
+        background-image: linear-gradient(to right, #007bff, #00c6ff);
+        color: white;
+        border: none;
+        padding: 15px;
+        font-weight: bold;
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+    .stButton > button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(0,123,255,0.4);
+    }
+    .payment-card {
+        background: linear-gradient(135deg, #1c1f26 0%, #0e1117 100%);
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid #333;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    h1, h2, h3 {
+        color: #ffffff !important;
+        font-family: 'Helvetica Neue', sans-serif;
+    }
+    .legal-footer {
+        font-size: 0.8em;
+        color: #666;
+        text-align: center;
+        margin-top: 50px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- LOGIQUE INTERNE (Nettoyage & Recherche) ---
+API_KEY = "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"
 
 def purger_donnees(texte):
-    bruit = r'(?i)(cookie|consent|policy|analytics|http|www|subscribe|transcript|login|footer|menu|sign up)'
+    bruit = r'(?i)(cookie|consent|policy|analytics|http|www|subscribe|transcript|login|footer|menu)'
     texte = re.sub(bruit, '', texte)
     segments = re.findall(r'[^.!?]*[.!?]', texte)
     return list(dict.fromkeys([p.strip() for p in segments if len(p.split()) > 15]))
 
-def moteur_recherche_furtif(idee):
-    """Effectue les recherches en arrière-plan sans rien afficher à l'écran."""
-    axes_strategiques = [
-        "Marché et Opportunités", "Innovation Technique", "Cadre Légal 2026", "Rentabilité Financière",
-        "Acquisition Clients", "Gestion des Risques", "Tendances Consommation", "Différenciation",
-        "Optimisation Fiscale", "Leviers de Croissance", "Analyse Concurrentielle", "Digitalisation",
-        "Développement Durable", "Ressources Humaines", "Logistique et Flux", "Psychologie Client",
-        "Branding et Image", "Investissements", "Scalabilité", "Intelligence Artificielle",
-        "Protection des Données", "Partenariats", "Fonds de Roulement", "Vision Long Terme"
-    ]
-    
-    pool = []
-    titres_final = []
-    # L'affichage status est maintenant très sobre et ne mentionne pas les sources
-    with st.spinner("Élaboration de votre expertise intégrale..."):
-        for axe in axes_strategiques:
+def moteur_furtif(idee):
+    axes = ["Marché", "Innovation", "Légal", "Finance", "Acquisition", "Risques", "Vision"]
+    pool, titres = [], []
+    with st.spinner("💎 Architecture de votre expertise en cours..."):
+        for axe in axes:
             try:
                 url = "https://api.tavily.com/search"
                 payload = {"api_key": API_KEY, "query": f"expertise stratégique {axe} {idee} 2026", "search_depth": "advanced"}
-                response = requests.post(url, json=payload, timeout=12)
-                data = response.json().get('results', [])
-                texte_axe = " ".join([r['content'] for r in data])
-                segments_propres = purger_donnees(texte_axe)
-                if segments_propres:
-                    pool.append(segments_propres)
-                    titres_final.append(axe.upper())
+                r = requests.post(url, json=payload, timeout=12).json()
+                data = purger_donnees(" ".join([res['content'] for res in r.get('results', [])]))
+                if data:
+                    pool.append(data)
+                    titres.append(axe.upper())
             except: continue
-    return pool, titres_final
+    return pool, titres
 
-def generer_livrable(idee):
-    pool_segments, titres = moteur_recherche_furtif(idee)
-    pages = []
-    for i in range(len(pool_segments)):
-        titre_chap = f"CHAPITRE {i+1} : {titres[i]}"
-        sections = []
-        base_page = pool_segments[i]
-        labels = ["CONTEXTE", "DIAGNOSTIC", "ENJEUX", "STRATÉGIE", "DÉPLOIEMENT"]
-        for s in range(min(5, len(base_page))):
-            sections.append(f"<b>{labels[s]} :</b> {base_page[s]} Pour votre projet '{idee}', ce levier est capital pour 2026.")
-        pages.append([titre_chap] + sections)
-    
-    signature = hashlib.sha256(str(pages).encode()).hexdigest()[:12].upper()
-    return pages, signature
-
-def fabriquer_pdf(pages, idee, signature):
+def fabriquer_pdf(pages, idee, sig):
     buf = io.BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=A4, rightMargin=1.2*cm, leftMargin=1.2*cm, topMargin=1.2*cm, bottomMargin=1.2*cm)
+    doc = SimpleDocTemplate(buf, pagesize=A4, rightMargin=1.5*cm, leftMargin=1.5*cm, topMargin=1.5*cm, bottomMargin=1.5*cm)
     styles = getSampleStyleSheet()
     style_p = styles["Normal"]
     style_p.alignment, style_p.fontSize, style_p.leading = TA_JUSTIFY, 10.5, 15
-    story = [Paragraph(f"<b>DOSSIER D'EXPERTISE INTÉGRAL : {idee.upper()}</b>", styles["Title"]), Paragraph(f"Référence : {signature}", styles["Normal"]), Spacer(1, 0.5*cm)]
+    story = [Paragraph(f"<b>DOSSIER D'EXPERTISE : {idee.upper()}</b>", styles["Title"]), Paragraph(f"Signature : {sig}", styles["Normal"]), Spacer(1, 1*cm)]
     for page in pages:
         for ligne in page:
             story.append(Paragraph(ligne, styles["Heading2"] if "CHAPITRE" in ligne else style_p))
@@ -81,41 +102,51 @@ def fabriquer_pdf(pages, idee, signature):
     buf.seek(0)
     return buf
 
-# --- INTERFACE ---
-st.title("💎 Architect Solution Pro")
-st.subheader("Cabinet de Conseil Stratégique Autonome")
+# --- INTERFACE IMMERSIVE ---
+st.markdown("<h1 style='text-align: center;'>💎 Architect Solution Pro</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #aaa;'>L'excellence de l'analyse stratégique automatisée.</p>", unsafe_allow_html=True)
 
-st.markdown("""
-<div style="background-color:#f0f2f6;padding:25px;border-radius:10px;border:2px solid #007bff;text-align:center">
-    <h3 style="color:#007bff">📂 DOSSIER D'EXPERTISE INTÉGRAL</h3>
-    <p>Une analyse exhaustive personnalisée, générée en temps réel pour votre projet.</p>
-    <a href="https://buy.stripe.com/votre_lien" target="_blank" style="background-color:#007bff;color:white;padding:12px 25px;text-decoration:none;border-radius:5px;font-weight:bold">OBTENIR MON DOSSIER (9€)</a>
-</div>
-""", unsafe_allow_html=True)
+# Bloc de Paiement Visuel
+st.markdown(f"""
+    <div class="payment-card">
+        <h2 style="color: #007bff !important;">DOSSIER D'EXPERTISE INTÉGRAL</h2>
+        <p style="color: #ccc;">Analyse multisectorielle basée sur 24 sources web mondiales.</p>
+        <p style="font-size: 24px; font-weight: bold; color: white;">9.00 €</p>
+        <a href="https://buy.stripe.com/votre_lien" target="_blank" style="text-decoration: none;">
+            <div style="background: #007bff; color: white; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px;">
+                DÉBLOQUER MON ACCÈS SÉCURISÉ
+            </div>
+        </a>
+        <p style="font-size: 0.7em; color: #666; margin-top: 15px;">🔒 Paiement crypté SSL par Stripe</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-st.markdown("---")
-idee = st.text_input("Saisissez votre ambition pour lancer l'expertise :", placeholder="ex: vente de chaussures, agence immobilière...")
+idee = st.text_input("Saisissez votre ambition pour 2026 :", placeholder="ex: Lancer une marque de luxe...")
 
-# Sidebar pour le code secret
-st.sidebar.subheader("🔒 Zone Propriétaire")
-code = st.sidebar.text_input("Code Secret :", type="password")
+# Sidebar pour le Concepteur (Verrouillage)
+st.sidebar.markdown("<h2 style='text-align: center;'>🔐 Accès</h2>", unsafe_allow_html=True)
+code_saisi = st.sidebar.text_input("Code Secret :", type="password")
 
-if st.button("🚀 GÉNÉRER L'EXPERTISE INTÉGRALE"):
+if code_saisi == "23111977":
+    if st.button("🚀 GÉNÉRER L'EXPERTISE"):
+        if idee:
+            pool, titres = moteur_furtif(idee)
+            pages = []
+            for i in range(len(pool)):
+                chap = [f"CHAPITRE {i+1} : {titres[i]}", f"<b>DIAGNOSTIC :</b> {pool[i][0]}"]
+                pages.append(chap)
+            sig = hashlib.sha256(str(pages).encode()).hexdigest()[:12].upper()
+            pdf = fabriquer_pdf(pages, idee, sig)
+            st.success("✅ Expertise finalisée.")
+            st.download_button("📥 TÉLÉCHARGER LE DOSSIER PDF", pdf, f"Expertise_{idee}.pdf")
+else:
     if idee:
-        # Lancement de la génération
-        pages, sig = generer_livrable(idee)
-        pdf = fabriquer_pdf(pages, idee, sig)
-        
-        # LOGIQUE D'AFFICHAGE CONDITIONNELLE
-        if code == "23111977":
-            # N'apparaît QUE si le code est bon
-            st.success(f"✅ Expertise '{idee}' finalisée avec succès.")
-            st.download_button("📥 TÉLÉCHARGER LE DOSSIER PDF", pdf, f"Expertise_{idee}.pdf", "application/pdf")
-        else:
-            # Message standard pour le client
-            st.info("🎯 Votre dossier d'expertise est prêt. Une fois votre règlement de 9€ effectué, utilisez votre accès pour le télécharger.")
+        st.info("🎯 L'intelligence analyse votre projet. Le téléchargement s'activera après votre règlement de 9€.")
 
-# Pied de page discret
-st.markdown("---")
-if st.button("⚖️ Mentions Légales"):
-    st.caption("Architect Solution Pro - Service d'analyse numérique. Prix : 9€ TTC. Livraison immédiate. Non remboursable après génération.")
+# Footer Légal
+st.markdown("""
+    <div class="legal-footer">
+        ---<br>
+        Architect Solution Pro © 2026 | <a href="#" style="color: #666;">Mentions Légales</a> | <a href="#" style="color: #666;">CGV</a>
+    </div>
+    """, unsafe_allow_html=True)
