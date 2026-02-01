@@ -11,15 +11,16 @@ from reportlab.lib.units import cm
 from reportlab.lib.enums import TA_JUSTIFY
 
 # --- CONFIGURATION DE LA PAGE ---
-st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="centered")
 
 # --- DESIGN IMMERSIF (CSS) ---
 st.markdown("""
     <style>
-    /* Masquage total des menus natifs Streamlit */
+    /* Masquage total des menus natifs Streamlit pour le client */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    [data-testid="stSidebar"] {display: none;} /* On supprime la sidebar qui pose problème */
     
     .main { background-color: #0e1117; }
     
@@ -28,15 +29,13 @@ st.markdown("""
         padding: 30px; border-radius: 20px; border: 1px solid #333; text-align: center; margin-bottom: 30px;
     }
     
-    /* Style du bouton d'accès admin discret */
-    .admin-access {
-        position: fixed;
-        bottom: 10px;
-        right: 10px;
-        opacity: 0.3;
-        transition: 0.5s;
+    .admin-box {
+        margin-top: 100px;
+        padding: 20px;
+        border-top: 1px solid #222;
+        opacity: 0.5;
     }
-    .admin-access:hover { opacity: 1.0; }
+    .admin-box:hover { opacity: 1; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -80,10 +79,9 @@ def fabriquer_pdf(pages, idee, sig):
     buf.seek(0)
     return buf
 
-# --- INTERFACE ---
+# --- INTERFACE CLIENT ---
 st.markdown("<h1 style='text-align: center; color: white;'>💎 Architect Solution Pro</h1>", unsafe_allow_html=True)
 
-# Bloc Paiement
 st.markdown(f"""
     <div class="payment-card">
         <h2 style="color: #007bff !important;">DOSSIER D'EXPERTISE INTÉGRAL</h2>
@@ -97,20 +95,19 @@ st.markdown(f"""
     </div>
     """, unsafe_allow_html=True)
 
-idee = st.text_input("Saisissez votre ambition pour 2026 :", placeholder="ex: Lancer un restaurant gastronomique...")
+idee = st.text_input("Saisissez votre ambition pour 2026 :", placeholder="ex: Agence immobilière...")
 
-# --- LE BOUTON D'ACCÈS CONCEPTEUR ---
-# Ce bouton permet d'ouvrir la barre latérale même si Streamlit la cache
-if st.sidebar.button("✖️ Fermer l'accès"):
-    st.sidebar.write("Accès réduit.")
-else:
-    st.sidebar.markdown("### 🔐 CONFIGURATION")
-    code_saisi = st.sidebar.text_input("Code Secret :", type="password")
+# --- ZONE D'ACCÈS CONCEPTEUR (Directement sur la page) ---
+st.markdown("<div class='admin-box'>", unsafe_allow_html=True)
+col_a, col_b = st.columns([2,1])
+with col_b:
+    code_admin = st.text_input("Accès Admin :", type="password")
+st.markdown("</div>", unsafe_allow_html=True)
 
-# Logique Concepteur
-if code_saisi == "23111977":
-    st.sidebar.success("Mode Concepteur Activé")
-    if st.button("🚀 GÉNÉRER L'EXPERTISE (ACCÈS PRIVÉ)"):
+# LOGIQUE DE DÉVERROUILLAGE
+if code_admin == "23111977":
+    st.success("✅ Mode Concepteur Activé")
+    if st.button("🚀 GÉNÉRER L'EXPERTISE MAINTENANT"):
         if idee:
             pool, titres = moteur_furtif(idee)
             pages = []
@@ -120,11 +117,9 @@ if code_saisi == "23111977":
                 pages.append(chap)
             sig = hashlib.sha256(str(pages).encode()).hexdigest()[:12].upper()
             pdf = fabriquer_pdf(pages, idee, sig)
-            st.success("✅ Expertise finalisée.")
-            st.download_button("📥 TÉLÉCHARGER LE PDF", pdf, f"Expertise_{idee}.pdf")
+            st.download_button("📥 TÉLÉCHARGER LE PDF GÉNÉRÉ", pdf, f"Expertise_{idee}.pdf")
 else:
     if idee:
-        st.info("🎯 L'intelligence prépare votre projet. Le téléchargement s'activera après votre règlement.")
+        st.info("🎯 L'intelligence analyse votre projet. Le téléchargement s'activera après votre règlement.")
 
-# Footer discret
-st.markdown("<div style='text-align:center; color:#333; font-size:0.7em; margin-top:100px;'>Architect Solution Pro © 2026</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align:center; color:#333; font-size:0.7em; margin-top:50px;'>Architect Solution Pro © 2026</div>", unsafe_allow_html=True)
