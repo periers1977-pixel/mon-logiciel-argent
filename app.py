@@ -10,58 +10,24 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.lib.enums import TA_JUSTIFY
 
-# --- CONFIGURATION DE LA PAGE ---
+# --- CONFIGURATION ET MASQUAGE DU MENU STREAMLIT ---
 st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="centered")
 
-# --- DESIGN IMMERSIF (CSS) ---
 st.markdown("""
     <style>
-    .main {
-        background-color: #0e1117;
-    }
-    .stTextInput > div > div > input {
-        background-color: #1c1f26;
-        color: white;
-        border: 1px solid #007bff;
-        border-radius: 10px;
-    }
-    .stButton > button {
-        width: 100%;
-        background-image: linear-gradient(to right, #007bff, #00c6ff);
-        color: white;
-        border: none;
-        padding: 15px;
-        font-weight: bold;
-        border-radius: 10px;
-        transition: 0.3s;
-    }
-    .stButton > button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 4px 15px rgba(0,123,255,0.4);
-    }
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .main { background-color: #0e1117; }
+    .stTextInput > div > div > input { background-color: #1c1f26; color: white; border: 1px solid #007bff; }
     .payment-card {
         background: linear-gradient(135deg, #1c1f26 0%, #0e1117 100%);
-        padding: 30px;
-        border-radius: 20px;
-        border: 1px solid #333;
-        text-align: center;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-    h1, h2, h3 {
-        color: #ffffff !important;
-        font-family: 'Helvetica Neue', sans-serif;
-    }
-    .legal-footer {
-        font-size: 0.8em;
-        color: #666;
-        text-align: center;
-        margin-top: 50px;
+        padding: 30px; border-radius: 20px; border: 1px solid #333; text-align: center; margin-bottom: 30px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- LOGIQUE INTERNE (Nettoyage & Recherche) ---
+# --- MOTEURS INTERNES ---
 API_KEY = "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"
 
 def purger_donnees(texte):
@@ -73,7 +39,7 @@ def purger_donnees(texte):
 def moteur_furtif(idee):
     axes = ["Marché", "Innovation", "Légal", "Finance", "Acquisition", "Risques", "Vision"]
     pool, titres = [], []
-    with st.spinner("💎 Architecture de votre expertise en cours..."):
+    with st.spinner("💎 Élaboration de votre expertise en cours..."):
         for axe in axes:
             try:
                 url = "https://api.tavily.com/search"
@@ -81,8 +47,7 @@ def moteur_furtif(idee):
                 r = requests.post(url, json=payload, timeout=12).json()
                 data = purger_donnees(" ".join([res['content'] for res in r.get('results', [])]))
                 if data:
-                    pool.append(data)
-                    titres.append(axe.upper())
+                    pool.append(data); titres.append(axe.upper())
             except: continue
     return pool, titres
 
@@ -102,51 +67,47 @@ def fabriquer_pdf(pages, idee, sig):
     buf.seek(0)
     return buf
 
-# --- INTERFACE IMMERSIVE ---
-st.markdown("<h1 style='text-align: center;'>💎 Architect Solution Pro</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #aaa;'>L'excellence de l'analyse stratégique automatisée.</p>", unsafe_allow_html=True)
+# --- INTERFACE VISIBLE ---
+st.markdown("<h1 style='text-align: center; color: white;'>💎 Architect Solution Pro</h1>", unsafe_allow_html=True)
 
-# Bloc de Paiement Visuel
+# Bloc de Paiement Public
 st.markdown(f"""
     <div class="payment-card">
         <h2 style="color: #007bff !important;">DOSSIER D'EXPERTISE INTÉGRAL</h2>
-        <p style="color: #ccc;">Analyse multisectorielle basée sur 24 sources web mondiales.</p>
+        <p style="color: #ccc;">Analyse multisectorielle basée sur 24 sources mondiales.</p>
         <p style="font-size: 24px; font-weight: bold; color: white;">9.00 €</p>
         <a href="https://buy.stripe.com/votre_lien" target="_blank" style="text-decoration: none;">
-            <div style="background: #007bff; color: white; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px;">
+            <div style="background: #007bff; color: white; padding: 15px; border-radius: 10px; font-weight: bold;">
                 DÉBLOQUER MON ACCÈS SÉCURISÉ
             </div>
         </a>
-        <p style="font-size: 0.7em; color: #666; margin-top: 15px;">🔒 Paiement crypté SSL par Stripe</p>
     </div>
     """, unsafe_allow_html=True)
 
-idee = st.text_input("Saisissez votre ambition pour 2026 :", placeholder="ex: Lancer une marque de luxe...")
+idee = st.text_input("Saisissez votre ambition pour 2026 :", placeholder="ex: Agence immobilière de luxe...")
 
-# Sidebar pour le Concepteur (Verrouillage)
-st.sidebar.markdown("<h2 style='text-align: center;'>🔐 Accès</h2>", unsafe_allow_html=True)
+# --- ZONE CONCEPTEUR (INVISIBLE POUR LE CLIENT) ---
+st.sidebar.markdown("### 🔐 ACCÈS")
 code_saisi = st.sidebar.text_input("Code Secret :", type="password")
 
 if code_saisi == "23111977":
-    if st.button("🚀 GÉNÉRER L'EXPERTISE"):
+    # Le bouton de génération n'apparaît QUE pour vous
+    st.sidebar.success("Mode Concepteur Activé")
+    if st.button("🚀 GÉNÉRER L'EXPERTISE (ACCÈS RÉSERVÉ)"):
         if idee:
             pool, titres = moteur_furtif(idee)
             pages = []
             for i in range(len(pool)):
-                chap = [f"CHAPITRE {i+1} : {titres[i]}", f"<b>DIAGNOSTIC :</b> {pool[i][0]}"]
+                chap = [f"CHAPITRE {i+1} : {titres[i]}"]
+                for segment in pool[i][:5]: chap.append(segment)
                 pages.append(chap)
             sig = hashlib.sha256(str(pages).encode()).hexdigest()[:12].upper()
             pdf = fabriquer_pdf(pages, idee, sig)
             st.success("✅ Expertise finalisée.")
-            st.download_button("📥 TÉLÉCHARGER LE DOSSIER PDF", pdf, f"Expertise_{idee}.pdf")
+            st.download_button("📥 TÉLÉCHARGER LE PDF", pdf, f"Expertise_{idee}.pdf")
 else:
+    # Message pour le client sans code
     if idee:
-        st.info("🎯 L'intelligence analyse votre projet. Le téléchargement s'activera après votre règlement de 9€.")
+        st.info("🎯 L'intelligence analyse votre projet. Le téléchargement s'activera après validation de votre règlement.")
 
-# Footer Légal
-st.markdown("""
-    <div class="legal-footer">
-        ---<br>
-        Architect Solution Pro © 2026 | <a href="#" style="color: #666;">Mentions Légales</a> | <a href="#" style="color: #666;">CGV</a>
-    </div>
-    """, unsafe_allow_html=True)
+st.markdown("<div style='text-align:center; color:#444; font-size:0.8em; margin-top:50px;'>Architect Solution Pro © 2026</div>", unsafe_allow_html=True)
