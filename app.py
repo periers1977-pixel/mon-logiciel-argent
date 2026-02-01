@@ -14,11 +14,11 @@ st.set_page_config(page_title="Architect Solution Pro", page_icon="💎")
 
 # --- CONFIGURATION DE VOTRE CLÉ ---
 # Collez votre clé API entre les guillemets ci-dessous
-API_KEY = "VOTRE_CLE_ICI" 
+API_KEY = "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" 
 
 def agent_recherche_web(requete):
     """Effectue une recherche réelle sur le Web via l'API."""
-    if API_KEY == "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":
+    if API_KEY == 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"":
         return "Erreur : Clé API non configurée. Le logiciel tourne à vide."
     
     try:
@@ -120,3 +120,4 @@ if st.button("🚀 LANCER LA RECHERCHE WEB ET L'ANALYSE"):
             )
         else:
             st.info("🎯 L'expertise est générée. Payez 9€ pour débloquer le téléchargement.")
+
