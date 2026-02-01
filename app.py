@@ -13,7 +13,7 @@ from reportlab.lib.enums import TA_JUSTIFY
 # --- CONFIGURATION PAGE ---
 st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="centered")
 
-# CSS : Interface de Luxe et masquage des menus natifs
+# --- DESIGN IMMERSIF (CSS) ---
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -21,13 +21,11 @@ st.markdown("""
     header {visibility: hidden;}
     [data-testid="stSidebar"] {display: none;}
     
-    /* Fond Immersif */
     .main { 
         background: radial-gradient(circle, #1a1c23 0%, #0e1117 100%);
         color: white;
     }
     
-    /* Carte de Paiement Premium */
     .payment-card {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
@@ -42,26 +40,27 @@ st.markdown("""
     .success-badge {
         background-color: #28a745;
         color: white;
-        padding: 10px 20px;
+        padding: 8px 18px;
         border-radius: 50px;
         display: inline-block;
         margin-bottom: 15px;
         font-weight: bold;
+        font-size: 0.9em;
     }
     
-    /* Admin ultra-discret */
     .admin-footer {
         position: fixed;
         bottom: 5px;
         left: 5px;
-        width: 150px;
-        opacity: 0.15;
+        width: 120px;
+        opacity: 0.1;
+        transition: 0.3s;
     }
     .admin-footer:hover { opacity: 1; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- MOTEUR INTERNE (SANS TERME IA) ---
+# --- MOTEUR INTERNE ---
 API_KEY = "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"
 
 def filtrage_donnees(texte):
@@ -73,7 +72,7 @@ def filtrage_donnees(texte):
 def moteur_expertise(idee):
     axes = ["Marché", "Innovation", "Légal", "Finance", "Acquisition", "Risques", "Vision", "Digital", "RH", "Logistique"]
     pool, titres = [], []
-    with st.spinner("💎 Algorithme : Extraction de l'expertise sectorielle..."):
+    with st.spinner("💎 Algorithme : Compilation de l'expertise sectorielle..."):
         for axe in axes:
             try:
                 url = "https://api.tavily.com/search"
@@ -106,12 +105,12 @@ def fabriquer_pdf_expert(pages, idee, sig):
     return buf
 
 # --- INTERFACE ---
-st.markdown("<h1 style='text-align: center; color: white;'>💎 Architect Solution Pro</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #777;'>Expertise Systémique & Analyse de Données Mondiales</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white; margin-bottom:0;'>💎 Architect Solution Pro</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #555; margin-top:0;'>Expertise Systémique & Analyse de Données Mondiales</p>", unsafe_allow_html=True)
 
-idee = st.text_input("Saisissez votre projet pour lancer l'algorithme :", placeholder="ex: Cabinet de consulting, boutique en ligne...")
+idee = st.text_input("Saisissez votre projet pour lancer l'algorithme :", placeholder="ex: Cabinet de consulting, plateforme e-commerce...")
 
-if st.button("🚀 GÉNÉRER MON EXPERTISE"):
+if st.button("🚀 GÉNÉRER MON DOSSIER"):
     if idee:
         pool, titres = moteur_expertise(idee)
         pages = []
@@ -121,13 +120,13 @@ if st.button("🚀 GÉNÉRER MON EXPERTISE"):
         
         st.markdown(f"""
             <div class="payment-card">
-                <div class="success-badge">ANALYSE TERMINÉE</div>
-                <h3 style="color: white;">Dossier Réf: {sig}</h3>
-                <p style="color: #ccc;">Votre expertise intégrale de haute densité est prête.</p>
-                <hr style="border: 0.1px solid #333;">
-                <p style="font-size: 28px; font-weight: bold; color: #007bff;">9.00 €</p>
+                <div class="success-badge">DOSSIER RÉFÉRENCÉ : {sig}</div>
+                <h3 style="color: white; margin-top:0;">Analyse de Haute Densité Terminée</h3>
+                <p style="color: #ccc; font-size: 0.9em;">Votre rapport personnalisé est archivé et prêt pour l'exportation.</p>
+                <hr style="border: 0.1px solid #333; margin: 20px 0;">
+                <p style="font-size: 32px; font-weight: bold; color: #007bff; margin-bottom:10px;">9.00 €</p>
                 <a href="https://buy.stripe.com/votre_lien" target="_blank" style="text-decoration: none;">
-                    <div style="background: #007bff; color: white; padding: 18px; border-radius: 12px; font-weight: bold; font-size: 1.1em;">
+                    <div style="background: #007bff; color: white; padding: 18px; border-radius: 12px; font-weight: bold; font-size: 1.1em; transition: 0.3s;">
                         DÉBLOQUER ET TÉLÉCHARGER LE DOSSIER
                     </div>
                 </a>
@@ -137,9 +136,9 @@ if st.button("🚀 GÉNÉRER MON EXPERTISE"):
         st.session_state['current_pdf'] = fabriquer_pdf_expert(pages, idee, sig)
         st.session_state['current_idee'] = idee
 
-# --- ZONE ADMIN ULTRA-DISCRÈTE (FIXÉE EN BAS À GAUCHE) ---
+# --- ZONE ADMIN ---
 st.markdown("<div class='admin-footer'>", unsafe_allow_html=True)
-code_admin = st.text_input("Accès :", type="password")
+code_admin = st.text_input("Admin", type="password", label_visibility="collapsed")
 st.markdown("</div>", unsafe_allow_html=True)
 
 if code_admin == "23111977" and 'current_pdf' in st.session_state:
