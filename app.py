@@ -10,24 +10,39 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.lib.enums import TA_JUSTIFY
 
-# --- CONFIGURATION ET MASQUAGE DU MENU STREAMLIT ---
-st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="centered")
+# --- CONFIGURATION DE LA PAGE ---
+st.set_page_config(page_title="Architect Solution Pro", page_icon="💎", layout="centered", initial_sidebar_state="collapsed")
 
+# --- DESIGN IMMERSIF ET MASQUAGE SÉLECTIF (CSS) ---
 st.markdown("""
     <style>
+    /* Masque les menus de développement mais laisse la flèche de la sidebar accessible */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    .main { background-color: #0e1117; }
-    .stTextInput > div > div > input { background-color: #1c1f26; color: white; border: 1px solid #007bff; }
+    
+    .main {
+        background-color: #0e1117;
+    }
     .payment-card {
         background: linear-gradient(135deg, #1c1f26 0%, #0e1117 100%);
-        padding: 30px; border-radius: 20px; border: 1px solid #333; text-align: center; margin-bottom: 30px;
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid #333;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .stTextInput > div > div > input {
+        background-color: #1c1f26;
+        color: white;
+        border: 1px solid #007bff;
+        border-radius: 10px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- MOTEURS INTERNES ---
+# --- MOTEUR DE RECHERCHE ---
 API_KEY = "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"
 
 def purger_donnees(texte):
@@ -67,7 +82,7 @@ def fabriquer_pdf(pages, idee, sig):
     buf.seek(0)
     return buf
 
-# --- INTERFACE VISIBLE ---
+# --- INTERFACE ---
 st.markdown("<h1 style='text-align: center; color: white;'>💎 Architect Solution Pro</h1>", unsafe_allow_html=True)
 
 # Bloc de Paiement Public
@@ -86,13 +101,13 @@ st.markdown(f"""
 
 idee = st.text_input("Saisissez votre ambition pour 2026 :", placeholder="ex: Agence immobilière de luxe...")
 
-# --- ZONE CONCEPTEUR (INVISIBLE POUR LE CLIENT) ---
-st.sidebar.markdown("### 🔐 ACCÈS")
+# --- BARRE LATÉRALE CONCEPTEUR ---
+st.sidebar.markdown("### 🔐 ACCÈS CONCEPTEUR")
 code_saisi = st.sidebar.text_input("Code Secret :", type="password")
 
 if code_saisi == "23111977":
-    # Le bouton de génération n'apparaît QUE pour vous
     st.sidebar.success("Mode Concepteur Activé")
+    # Le bouton de génération n'apparaît QUE pour vous
     if st.button("🚀 GÉNÉRER L'EXPERTISE (ACCÈS RÉSERVÉ)"):
         if idee:
             pool, titres = moteur_furtif(idee)
@@ -106,8 +121,7 @@ if code_saisi == "23111977":
             st.success("✅ Expertise finalisée.")
             st.download_button("📥 TÉLÉCHARGER LE PDF", pdf, f"Expertise_{idee}.pdf")
 else:
-    # Message pour le client sans code
     if idee:
-        st.info("🎯 L'intelligence analyse votre projet. Le téléchargement s'activera après validation de votre règlement.")
+        st.info("🎯 L'intelligence prépare votre projet. Le téléchargement s'activera après validation de votre règlement.")
 
 st.markdown("<div style='text-align:center; color:#444; font-size:0.8em; margin-top:50px;'>Architect Solution Pro © 2026</div>", unsafe_allow_html=True)
