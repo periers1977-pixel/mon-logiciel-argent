@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import requests
 import hashlib
@@ -40,18 +41,18 @@ st.markdown("""
 # --- 3. MOTEUR D'ANALYSE ---
 def moteur_expertise(idee, premium=False):
     axes = ["Marché", "Innovation", "Légal", "Finance", "Risques"]
-    if premium: 
+    if premium:
         axes += ["Scalabilité", "Concurrents", "Logistique", "Digital", "Vente"]
-    
+
     resultats = []
     barre = st.progress(0)
     for i, axe in enumerate(axes):
         try:
             query = f"expertise approfondie {axe} {idee} 2026 en français"
-            r = requests.post("https://api.tavily.com/search", 
+            r = requests.post("https://api.tavily.com/search",
                              json={"api_key": API_KEY, "query": query, "search_depth": "advanced" if premium else "basic"},
                              timeout=20).json()
-            
+
             # Extraction brute sans filtres trop agressifs pour éviter les pages vides
             textes = [res['content'] for res in r.get('results', []) if len(res['content']) > 50]
             if textes:
@@ -67,9 +68,9 @@ def generer_pdf(data, projet):
     doc = SimpleDocTemplate(buf, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
     styles = getSampleStyleSheet()
     style_p = ParagraphStyle('Corps', fontName='Helvetica', fontSize=10, leading=14, alignment=TA_JUSTIFY)
-    
+
     elements = [Paragraph(f"<b>Architect Solution Pro : {projet.upper()}</b>", styles["Title"]), Spacer(1, 1*cm)]
-    
+
     # Boucle d'écriture forcée pour remplir le document
     for titre, paragraphes in data:
         elements.append(Paragraph(f"<b>{titre}</b>", styles["Heading2"]))
@@ -78,7 +79,7 @@ def generer_pdf(data, projet):
             elements.append(Paragraph(p_clean, style_p))
             elements.append(Spacer(1, 6))
         elements.append(Spacer(1, 0.5*cm))
-        
+
     doc.build(elements)
     buf.seek(0)
     return buf
@@ -122,3 +123,4 @@ if st.session_state['pdf_binaire']:
     st.success("✅ ANALYSE TERMINÉE : VOTRE DOSSIER EST PRÊT")
     st.markdown(f'<div class="prix-tag">9.00 €</div>', unsafe_allow_html=True)
     st.markdown(f'<a href="https://buy.stripe.com/9" style="text-decoration:none;"><div style="background:#007bff;color:white;padding:15px;border-radius:10px;text-align:center;font-weight:bold;">ACCÉDER AU DOSSIER</div></a>', unsafe_allow_html=True)
+```
